@@ -16,12 +16,17 @@
 
 # Import ------------------------------------------------------------------
 
+
   # set file path
     filepath <- "~/data/3.23 refresh"
     
   # read in psnu by im txt file, and save as .rds
     df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt", path = filepath)
-  
+
+    
+# Inspect partners --------------------------------------------------------
+
+    
   # next create distict list of prime partners to locate which ones to filter for(JSI, etc..)
     prime_partner <- df %>% 
       distinct(primepartner) %>% 
@@ -29,16 +34,20 @@
   
   # list of all JSI partner names
     jsi_list <- c("John Snow Inc (JSI)", "John Snow, Inc.")
+
     
+# Subset to just JSI ------------------------------------------------------
+
+
   # filter out only primerpartners of interest
   
     jsi <- filter(df, primepartner %in% jsi_lst)
   
   # from the filtered out data frame, create list of IMs
   
-  jsi_mechs <- jsi %>%
-    distinct(implementingmechanismname) %>%
-    arrange(implementingmechanismname)
+    jsi_mechs <- jsi %>%
+      distinct(implementingmechanismname) %>%
+      arrange(implementingmechanismname)
 
 # write both files to excel
 
