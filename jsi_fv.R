@@ -7,39 +7,38 @@
 
 # Dependencies ------------------------------------------------------------
 
-library(tidyverse)
-library("devtools")
-library(writexl)
-#install_github("ICPI/ICPIutilities")
-library(ICPIutilities)
+  library(tidyverse)
+  library("devtools")
+  library(writexl)
+  #install_github("ICPI/ICPIutilities")
+  library(ICPIutilities)
 
 
+# Import ------------------------------------------------------------------
 
-# User Inputs -------------------------------------------------------------
-
-filepath <- "C:/Users/GHFP/Documents/data/3.23 refresh"
-partner <- c("John Snow Inc (JSI)", "John Snow, Inc.")
-
-#########
-# read in psnu by im txt file, and save as .rds
-
-df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt", path = filepath)
-
-# next create distict list of prime partners to locate which ones to filter for(JSI, etc..)
-
-prime_partner<- df %>% 
-  distinct(primepartner) %>% 
-  arrange(primepartner)
-
-# filter out only primerpartners of interest
-
-jsi <- filter(df, primepartner=="John Snow Inc (JSI)" | primepartner=="John Snow, Inc.")
-
-# from the filtered out data frame, create list of IMs
-
-jsi_mechs <- jsi %>%
-  distinct(implementingmechanismname) %>%
-  arrange(implementingmechanismname)
+  # set file path
+    filepath <- "~/data/3.23 refresh"
+    
+  # read in psnu by im txt file, and save as .rds
+    df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt", path = filepath)
+  
+  # next create distict list of prime partners to locate which ones to filter for(JSI, etc..)
+    prime_partner <- df %>% 
+      distinct(primepartner) %>% 
+      arrange(primepartner)
+  
+  # list of all JSI partner names
+    jsi_list <- c("John Snow Inc (JSI)", "John Snow, Inc.")
+    
+  # filter out only primerpartners of interest
+  
+    jsi <- filter(df, primepartner %in% jsi_lst)
+  
+  # from the filtered out data frame, create list of IMs
+  
+  jsi_mechs <- jsi %>%
+    distinct(implementingmechanismname) %>%
+    arrange(implementingmechanismname)
 
 # write both files to excel
 
