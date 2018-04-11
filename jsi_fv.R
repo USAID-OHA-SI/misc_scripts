@@ -18,11 +18,11 @@
 
 
   # set file path
-    filepath <- "~/data/3.23 refresh"
-    
+    #filepath <- "~/data/3.23 refresh"
+    filepath <- "C:/Users/achafetz/Documents/ICPI/Data"
   # read in psnu by im txt file, and save as .rds
-    df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt", path = filepath)
-
+    df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt")
+    df <- read_rds(file.path(filepath, "ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.Rds"))
     
 # Inspect partners --------------------------------------------------------
 
@@ -33,28 +33,29 @@
       arrange(primepartner)
   
   # list of all JSI partner names
-    jsi_list <- c("John Snow Inc (JSI)", "John Snow, Inc.")
+    jsi_lst <- c("John Snow Inc (JSI)", "John Snow, Inc.")
 
     
 # Subset to just JSI ------------------------------------------------------
 
 
-  # filter out only primerpartners of interest
-  
-    jsi <- filter(df, primepartner %in% jsi_lst)
-  
-  # from the filtered out data frame, create list of IMs
-  
+  # filter only primerpartners of interest
+    jsi <- filter(df, primepartner %in% jsi_lst) %>% 
+      # write both files to excel
+      write_xlsx(path = "3.23.2018_jsi_PSNU_IM.xlsx", col_names = TRUE)
+    
+    
+  # create list of IMs to JSI
     jsi_mechs <- jsi %>%
       distinct(implementingmechanismname) %>%
-      arrange(implementingmechanismname)
+      arrange(implementingmechanismname) %>% 
+      #write to excel
+      write_xlsx(path = "3.23.2018_jsi_IMs.xlsx", col_names = TRUE)
+    
 
-# write both files to excel
+    
 
-write_xlsx(jsi, path = "3.23.2018_jsi_PSNU_IM.xlsx", col_names = TRUE)
-write_xlsx(jsi_mechs, path = "3.23.2018_jsi_IMs.xlsx", col_names = TRUE)
 
-#
 
 
 
