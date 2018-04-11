@@ -18,11 +18,11 @@
 
 
   # set file path
-    #filepath <- "~/data/3.23 refresh"
-    filepath <- "C:/Users/achafetz/Documents/ICPI/Data"
+    filepath <- "~/data/3.23 refresh"
+
   # read in psnu by im txt file, and save as .rds
     df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt")
-    df <- read_rds(file.path(filepath, "ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.Rds"))
+
     
 # Inspect partners --------------------------------------------------------
 
