@@ -1,1 +1,8 @@
-*.Rproj
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+*.csv
+*.xlsx
