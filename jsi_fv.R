@@ -2,24 +2,27 @@
 ##   Autors:   J.Davis - USAID
 ##   Purpose:  create JSI - specific OU by IM structured dataset
 ##   Date:     2018-04-10
-##   Updated:  2018-04-10
+##   Updated:  2018-04-11
 
 
-require(tidyverse)
-install.packages("writexl")
-install.packages("here")
-install.packages("devtools")
+# Dependencies ------------------------------------------------------------
+
+library(tidyverse)
 library("devtools")
-install_github("ICPI/ICPIutilities")
-require(writexl)
 library(writexl)
-library(here)
+#install_github("ICPI/ICPIutilities")
 library(ICPIutilities)
+
+
+
+# User Inputs -------------------------------------------------------------
+
+filepath <- "C:/Users/GHFP/Documents/data/3.23 refresh"
+partner <- c("John Snow Inc (JSI)", "John Snow, Inc.")
 
 #########
 # read in psnu by im txt file, and save as .rds
 
-filepath <- "C:/Users/GHFP/Documents/data/3.23 refresh"
 df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt", path = filepath)
 
 # next create distict list of prime partners to locate which ones to filter for(JSI, etc..)
