@@ -15,10 +15,10 @@
     folder <- "~/ICPI/Data/"
     
   #import OU_IM MER Structured dataset
-    df_mer <- read_rds(Sys.glob("ICPI_MER_Structured_Dataset_OU_IM_2*.Rds"))
+    df_mer <- read_rds(Sys.glob(file.path(folder, "ICPI_MER_Structured_Dataset_OU_IM_2*.Rds")))
   
   #import EA file
-    df_ea <- read_rds("ICPI_EA_Structured_Dataset_PSNU_IM_20180110.Rds")
+    df_ea <- read_rds(file.path(folder, "ICPI_EA_Structured_Dataset_PSNU_IM_20180110.Rds"))
 
 
 # Inspect and Define Indicators -------------------------------------------
