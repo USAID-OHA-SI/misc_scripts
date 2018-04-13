@@ -21,19 +21,21 @@
     filepath <- "~/data/3.23 refresh"
 
   # read in psnu by im txt file, and save as .rds
-    df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt")
+    mer_df <- read_msd(filepath, "ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt")
 
     
 # Inspect partners --------------------------------------------------------
 
     
   # next create distict list of prime partners to locate which ones to filter for(JSI, etc..)
-    prime_partner <- df %>% 
+    prime_partner <- mer_df %>% 
       distinct(primepartner) %>% 
       arrange(primepartner)
   
-  # list of all JSI partner names
+  # list of all partner names of interest
     jsi_lst <- c("John Snow Inc (JSI)", "John Snow, Inc.")
+    fhi_lst <- c("FHI 360")
+    psi_lst <- c("Population Services International")
 
     
 # Subset to just JSI ------------------------------------------------------
