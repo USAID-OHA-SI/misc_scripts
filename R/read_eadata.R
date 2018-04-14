@@ -2,7 +2,7 @@
 ##   A.Chafetz
 ##   Purpose: EA data stored in two locations; merge and standardize
 ##   Date: 2018.04.12
-##   Updated: 
+##   Updated: 2018.04.14
 
 
 # NOTES
@@ -13,32 +13,36 @@
 
 library(tidyverse)
 
+
+# Folders -----------------------------------------------------------------
+
+  importfolder <- "C:/Users/achafetz/Downloads/"
+  exportfolder <- "~/ICPI/Data/"
+
 # Import Function ---------------------------------------------------------
 
-read_ea <- function(filepath){
-  df <- read_csv(filepath, 
-           col_types = cols(
-             .default = col_character(), 
-             mechanismid = col_character(),
-             mech_promis_id = col_character(),
-             fy15 = col_double(),
-             fy16 = col_double(),
-             fy17 = col_double())) %>% 
-  rename_all(., ~ tolower(.))
-}
+  read_ea <- function(filepath){
+    df <- read_csv(filepath, 
+             col_types = cols(
+               .default = col_character(), 
+               mechanismid = col_character(),
+               mech_promis_id = col_character(),
+               fy15 = col_double(),
+               fy16 = col_double(),
+               fy17 = col_double())) %>% 
+    rename_all(., ~ tolower(.))
+  }
 
 
 # Import ------------------------------------------------------------------
 
-
-#import EA file (1 of 2)
-
-df_ea1 <- read_ea("C:/Users/achafetz/Downloads/2015-2017 ICPI Batch1 Countries FV 10JAN18.csv")
-df_ea2  <- read_ea("C:/Users/achafetz/Downloads/2015-2017 ICPI Batch2 Countries FV 10JAN18.csv")
+  #import EA file (1 of 2)
+    df_ea1 <- read_ea(file.path(importfolder, "2015-2017 ICPI Batch1 Countries FV 10JAN18.csv"))
+    df_ea2 <- read_ea(file.path(importfolder, "2015-2017 ICPI Batch2 Countries FV 10JAN18.csv"))
 
 
 # Merge and Save ----------------------------------------------------------
 
-df_ea <- bind_rows(df_ea1, df_ea2)
-  rm(df_ea1, df_ea2) 
-write_rds(df_ea, "~/ICPI/Data/ICPI_EA_Structured_Dataset_PSNU_IM_20180110.Rds")
+  df_ea <- bind_rows(df_ea1, df_ea2)
+    rm(df_ea1, df_ea2) 
+  write_rds(df_ea, folder.path(exportfoler, "ICPI_EA_Structured_Dataset_PSNU_IM_20180110.Rds"))
