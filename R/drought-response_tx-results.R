@@ -64,5 +64,5 @@
 # Clean up ----------------------------------------------------------------
   
   #remove direcotry
-    dir_delete("tmp_prj")
+    unlink("~/tmp_prj")
 
