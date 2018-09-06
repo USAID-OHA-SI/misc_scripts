@@ -10,7 +10,10 @@
 
 #file path to MSD (.rds)
   msd_filepath <- "~/ICPI/Data/MER_Structured_Dataset_OU_FY17-18_20180815_v1_1.Rds"
-
+  
+#folder path for saving
+  save_folderpath <-"C:/Users/achafetz/Downloads/"
+  
 #open and filter to select indicators, adding in a cumulative value for current FY
   df_mer_filter <- read_rds(msd_filepath)  %>% 
     filter(indicator %in% c("HTS_TST_POS", "TX_CURR", "TX_NEW"),
@@ -54,8 +57,15 @@
     select(operatingunit, indicator, ends_with("share"))
 
 #merge two pieces together
-table <- full_join(ach, share) %>%
-  #reorder indicators to cascade rather than alpabetical
-  mutate(indicator = factor(indicator, c("HTS_TST_POS", "TX_NEW", "TX_CURR"))) %>% 
-  arrange(operatingunit, indicator)
+  table <- full_join(ach, share) %>%
+    #reorder indicators to cascade rather than alpabetical
+    mutate(indicator = factor(indicator, c("HTS_TST_POS", "TX_NEW", "TX_CURR"))) %>% 
+    arrange(operatingunit, indicator)
+
+#export
+  table %>% 
+    rename_all(~ c("Operating Unit", "Indicator", "USAID Target Achievement (%)", 
+                 "CDC Target Achievement (%)", "USAID Share of FY18 OU Targets (%)",
+                 "USAID Share of FY19 OU Targets (%)")) %>% 
+    write_csv(file.path(save_folderpath, "CountryProfile_MERTables.csv"), na = "")
   
