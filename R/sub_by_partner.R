@@ -18,14 +18,15 @@
 
 
   # set file path
-    filepath <- "~/data/3.23 refresh"
+    filepath <- "C:\\Users\\GHFP\\Documents\\data\\9_22_release"
+    results <- "C:\\Users\\GHFP\\Documents\\data\\9_22_release\\IP_data"
 
   # read in psnu by im txt file, and save as .rds
     mer_df <- read_msd("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.txt")
 
   #only if you've already read it in and saved as rds 
      setwd(filepath)
-     mer_df <- read_rds("ICPI_MER_Structured_Dataset_PSNU_IM_20180323_v2_1.rds")
+     mer_df <- read_rds(file.path(filepath, "MER_Structured_Dataset_PSNU_IM_FY17-18_20180921_v2_1.rds"))
     
 # Inspect partners --------------------------------------------------------
 
@@ -47,7 +48,7 @@
   # filter only primerpartners of interest
     jsi <- filter(mer_df, primepartner %in% jsi_lst) %>% 
       # write both files to excel
-      write_xlsx(path = "3.23.2018_jsi_PSNU_IM.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_jsi_PSNU_IM.xlsx"), col_names = TRUE)
     
     
   # create list of IMs to JSI
@@ -55,7 +56,7 @@
       distinct(implementingmechanismname, mechanismid) %>%
       arrange(implementingmechanismname) %>% 
       #write to excel
-      write_xlsx(path = "3.23.2018_jsi_IMs.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_jsi_IMs.xlsx"), col_names = TRUE)
     
 
 # FHI360 ------------------------------------------------------------------
@@ -63,14 +64,14 @@
 #filter to partner of interest
     fhi <- filter(mer_df, primepartner %in% fhi_lst) %>% 
       #write to excel
-      write_xlsx(path = "3.23.2018_fhi_PSNU_IM.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_fhi_PSNU_IM.xlsx"), col_names = TRUE)
     
     # create list of IMs to FHI
     fhi_mechs <- fhi %>%
       distinct(implementingmechanismname, mechanismid) %>%
       arrange(implementingmechanismname) %>% 
       #write to excel
-      write_xlsx(path = "3.23.2018_fhi_IMs.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_fhi_IMs.xlsx"), col_names = TRUE)
     
 
 # PSI ---------------------------------------------------------------------
@@ -78,14 +79,14 @@
 #filter to partner of interest
     psi <- filter(mer_df, primepartner %in% psi_lst)%>% 
       #write to excel
-      write_xlsx(path = "3.23.2018_psi_PSNU_IM.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_psi_PSNU_IM.xlsx"), col_names = TRUE)
     
     # create list of IMs to PSI
     psi_mechs <- psi %>%
       distinct(implementingmechanismname, mechanismid) %>%
       arrange(implementingmechanismname) %>% 
       #write to excel
-      write_xlsx(path = "3.23.2018_psi_IMs.xlsx", col_names = TRUE)
+      write_xlsx(file.path(results, "9.22.2018_psi_IMs.xlsx", col_names = TRUE))
 
 
 
