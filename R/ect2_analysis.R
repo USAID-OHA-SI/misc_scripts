@@ -53,20 +53,24 @@ library(glue)
   ##  Make ECT PPRs
   
   ect <- read_rds(file.path(data, "MER_Structured_Dataset_PSNU_IM_FY17-18_20181115_v1_1.rds")) %>% 
-    filter(operatingunit %in% ect2)
-  
+    filter(operatingunit %in% ect2) %>%
+    saveRDS(file.path(data, "MER_Structured_Dataset_ECT2_PSNU_IM_FY17-18_20181115_v1_1.rds"))
+    
+   
+
                  
  data <- "C:/Users/GHFP/Documents/data/11_15_release"
   
  #install
  install.packages("devtools")
  devtools::install_github("achafetz/PartnerProgress")
+ 
  #load package
  library("genPPR")
   
-  
-   
-   
+ initialize_fldr("PartnerProgress", "C:/Users/GHFP/Documents/GitHub", "RawData", "Documents", "R", "ExcelOutput")
+ 
+ 
   
   
 

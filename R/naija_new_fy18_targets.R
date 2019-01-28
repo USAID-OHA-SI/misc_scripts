@@ -1,23 +1,4 @@
 
-
-library(tidyverse)
-library(ICPIutilities)
-library(readxl)
-
-df <- read_msd("C:\\Users\\GHFP\\Documents\\data\\8.15_release\\PREP_NEW\\PREP_NEW_genie_9.5.18.txt") %>% 
-  mutate(fy2018q2 = ifelse(mechanismid=="18456" & disaggregate=="Total Numerator", NA, fy2018q2))
-
-df %>% filter(mechanismid=="18456") %>% View()
-
-
-data <- "C:\\Users\\GHFP\\Documents\\data\\8.15_release"
-indc <- c("PrEP_NEW")
-
-df <- read_rds(file.path(data, "MER_Structured_Dataset_OU_FY17-18_20180815_v1_1.rds")) %>% 
-  filter(indicator %in% indc) %>% 
-  write.csv(file.path(data, "prep_new_q3_unclean.csv"))
-
-############################################################################################################
 ## Naija scracth, targets
 
 library(tidyverse)
@@ -30,13 +11,13 @@ adjustment <- "C:\\Users\\GHFP\\Documents\\ICPI\\Nigeria\\targets"
 data <- "C:/Users/GHFP/Documents/data/11_15_release"
 
 ## bring in adjustment factor for fy18 targets
-map <- readxl::read_xlsx(file.path(adjustment, "USAID FY18 Adjusted Targets__updated07302018_jd.xlsx"), sheet = "map")
+#map <- readxl::read_xlsx(file.path(adjustment, "USAID FY18 Adjusted Targets__updated07302018_jd.xlsx"), sheet = "map")
 
 ## bring in nigeria PSNU by IM
 
-# ng_psnu <- read_msd(file.path(data, "MER_Structured_Dataset_PSNU_IM_FY17-18_20181115_v1_1_Nigeria.txt"), remove_txt = TRUE )
-ng_psnu <- read_rds(file.path(data, "MER_Structured_Dataset_PSNU_IM_FY17-18_20181115_v1_1_Nigeria.rds")) %>% 
-  rename_official()
+#ng_psnu <- read_msd(file.path(data, "MER_Structured_Dataset_PSNU_IM_FY17-18_20181115_v1_1_Nigeria.txt"), remove_txt = TRUE )
+#ng_psnu <- read_rds(file.path(data, "MER_Structured_Dataset_PSNU_IM_FY17-18_20181115_v1_1_Nigeria.rds")) %>% 
+#  rename_official()
 
 ## adjust msd
 tarj <- ng_psnu %>% 
@@ -90,7 +71,6 @@ fy18_tarj <- bind_rows(catss, hai, sidhass) %>%
   mutate(numeratordenom = "N") %>% 
   mutate(indicatortype = "DSD") %>% 
   mutate(disaggregate = "Total Numerator") %>% 
-  mutate(categoryoptioncomboname = "default") %>% 
   rename(fy2018_targets_adj = fy2018_targets)
   
 
