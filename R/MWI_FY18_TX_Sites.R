@@ -28,9 +28,8 @@ library(ICPIutilities)
 #summarize to site and partner
   df_mwi_tx <- df_mwi_tx %>% 
     group_by(orgunituid, sitename, psnu, fundingagency, mechanismid, primepartner, implementingmechanismname) %>% 
-    summarize_at(vars(fy2018apr), sum, na.rm = TRUE) %>% 
-    ungroup() %>% 
-    filter(fy2018apr != 0)
+    summarize_at(vars(fy2018apr, fy2019_targets), sum, na.rm = TRUE) %>% 
+    ungroup()
 
 #clean up partner names
   names <- tribble(
@@ -52,22 +51,69 @@ library(ICPIutilities)
   df_mwi_tx <- df_mwi_tx %>%
     arrange(orgunituid) %>% 
     group_by(orgunituid) %>% 
-    mutate(site_tot = sum(fy2018apr),
-           patient_grp = case_when(site_tot >= 2000 ~ "2k+",
-                                   site_tot >= 1000 ~ "1k+",
-                                   site_tot >=  500 ~ "500+",
-                                   TRUE             ~ "<500"),
-           patient_grp = factor(patient_grp, c("2k+", "1k+", "500+", "<500")))
-          
+    mutate(site_tot_18 = sum(fy2018apr),
+           site_tot_19 = sum(fy2019_targets),
+           patient_grp_18 = case_when(site_tot_18 >= 2000 ~ "2k+",
+                                      site_tot_18 >= 1000 ~ "1k+",
+                                      site_tot_18 >=  500 ~ "500+",
+                                      TRUE             ~ "<500"),
+           patient_grp_19 = case_when(site_tot_19 >= 2000 ~ "2k+",
+                                      site_tot_19 >= 1000 ~ "1k+",
+                                      site_tot_19 >=  500 ~ "500+",
+                                      TRUE             ~ "<500"),
+           patient_grp_18 = factor(patient_grp_18, c("2k+", "1k+", "500+", "<500")),
+           patient_grp_19 = factor(patient_grp_19, c("2k+", "1k+", "500+", "<500")))
+  
+  
+#FY18 APR
+  
 #site counts 
   df_mwi_tx %>% 
-    group_by(psnu, name, patient_grp) %>% 
+    filter(fy2018apr != 0) %>% 
+    group_by(psnu, name, patient_grp_18) %>% 
     count(sort = TRUE) %>% 
     ungroup() %>% 
-    spread(patient_grp, n) %>% 
+    spread(patient_grp_18, n) %>% 
     mutate_if(is.integer, ~ ifelse(is.na(.), 0, .)) %>% 
     mutate(total = `2k+` + `1k+` + `500+` + `<500`) %>% 
     arrange(psnu, total)
   
     
+#site counts total
+  df_mwi_tx %>% 
+    filter(fy2018apr != 0) %>% 
+    group_by(name, patient_grp_18) %>% 
+    count(sort = TRUE) %>% 
+    ungroup() %>% 
+    spread(patient_grp_18, n) %>% 
+    mutate_if(is.integer, ~ ifelse(is.na(.), 0, .)) %>% 
+    mutate(total = `2k+` + `1k+` + `500+` + `<500`) %>% 
+    arrange(total)
+  
+
+#FY19 Targets
+  
+  #site counts 
+  df_mwi_tx %>% 
+    filter(fy2019_targets != 0) %>% 
+    group_by(psnu, name, patient_grp_19) %>% 
+    count(sort = TRUE) %>% 
+    ungroup() %>% 
+    spread(patient_grp_19, n) %>% 
+    mutate_if(is.integer, ~ ifelse(is.na(.), 0, .)) %>% 
+    mutate(total = `2k+` + `1k+` + `500+` + `<500`) %>% 
+    arrange(psnu, total)
+  
+  
+  #site counts total
+  df_mwi_tx %>% 
+    filter(fy2019_targets != 0) %>% 
+    group_by(name, patient_grp_19) %>% 
+    count(sort = TRUE) %>% 
+    ungroup() %>% 
+    spread(patient_grp_19, n) %>% 
+    mutate_if(is.integer, ~ ifelse(is.na(.), 0, .)) %>% 
+    mutate(total = `2k+` + `1k+` + `500+` + `<500`) %>% 
+    arrange(total)
+  
   
