@@ -49,8 +49,8 @@
       "Elizabeth Glaser Pediatric AIDS Foundation",        "EGPAF",
       "MANAGEMENT AND DEVELOPMENT FO R HEALTH",          "MDH",
       "DELOITTE CONSULTING LIMITED",     "Deloitte",
-      "Amref Health Africa",        "PAHI",
-      "ARIEL GLASER PEDIATRIC AIDS H EALTHCARE INITIATIVE", "AGPAF",
+      "Amref Health Africa",        "Amref",
+      "ARIEL GLASER PEDIATRIC AIDS H EALTHCARE INITIATIVE", "APAHI",
       "Henry Jackson Foundation", "Henry Jackson")
   
 #adjust partner names and reorder variables
@@ -58,12 +58,11 @@
     left_join(partner_map) %>% 
     mutate(primepartner = partner_short,
            fundingagency = str_remove(fundingagency, "HHS/")) %>% 
-    select(-partner_short) %>% 
-    select(-fy2019cumulative, -fy2019_targets, everything())
-
+    select(-partner_short) 
   
 #TX_CURR achievement
   df_adj_tx <- df_adj %>% 
+    select(-fy2019cumulative, -fy2019_targets, everything()) %>% 
     group_by(fundingagency, primepartner) %>% 
     summarise_at(vars(starts_with("fy")), sum, na.rm = TRUE) %>% 
     ungroup() %>% 
@@ -96,3 +95,21 @@
   
   write_csv(df_adj_nn, "../Downloads/TZA_Q4_TX_NET_NEW_Adj.csv", na = "") 
   
+  
+  
+#partners unadjusted trends
+  df_unadj <- df %>% 
+    reshape_msd("long") %>% 
+    filter(indicator %in% c("TX_CURR", "TX_NET_NEW"),
+           !period %in% c("fy2018_targets", "fy2018cumulative", 
+                          "fy2020_targets")) %>% 
+    left_join(partner_map) %>% 
+    mutate(primepartner = ifelse(is.na(partner_short),primepartner, partner_short),
+           fundingagency = str_remove(fundingagency, "HHS/")) %>% 
+    select(-partner_short) %>% 
+    group_by(fundingagency, primepartner, indicator, period) %>% 
+    summarise_at(vars(val), sum, na.rm = TRUE) %>% 
+    ungroup() %>% 
+    spread(period, val) 
+  
+  write_csv(df_unadj, "../Downloads/TZA_Q4_TX_unAdj.csv", na = "") 
