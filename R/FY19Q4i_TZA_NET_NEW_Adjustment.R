@@ -2,7 +2,7 @@
 ## AUTHOR:   A.CHAFETZ | USAID
 ## PURPOSE:  Adjustments to Net New given regional shifts
 ## DATE:     2019-11-07
-## UPDATED:  
+## UPDATED:  2019-11-18
 
 #dependencies
   library(tidyverse)
@@ -66,9 +66,9 @@
     group_by(fundingagency, primepartner) %>% 
     summarise_at(vars(starts_with("fy")), sum, na.rm = TRUE) %>% 
     ungroup() %>% 
-    mutate(fy2019achv = fy2019q4/fy2019_targets) 
-  
-  write_csv(df_adj_tx, "../Downloads/TZA_Q4_TX_CURR_Adj.csv", na = "") 
+    select(-fy2019_targets, everything()) %>% 
+    mutate(fy2019achv = fy2019q4/fy2019_targets) %>% 
+    add_column(indicator = "TX_CURR", .after = "primepartner")
   
 #TX_NET_NEW calculation
   df_adj_nn_targets <- df_adj %>% 
@@ -77,7 +77,7 @@
   
 #TX_NET_NEW achievement
   df_adj_nn <- df_adj %>% 
-    select(-fy2019_targets) %>% 
+    select(-fy2019_targets, -fy2019cumulative) %>% 
     gather(period, val, starts_with("fy")) %>% 
     arrange(snu1, period) %>% 
     group_by(snu1) %>% 
@@ -85,15 +85,17 @@
     ungroup() %>% 
     select(-val) %>% 
     spread(period, nn) %>% 
+    mutate(fy2019cumulative = fy2019q1 + fy2019q2 + fy2019q3 + fy2019q4) %>% 
     left_join(df_adj_nn_targets) %>% 
-    select(-fy2019cumulative, -fy2019_targets, everything()) %>% 
     group_by(fundingagency, primepartner) %>% 
     summarise_at(vars(starts_with("fy")), sum, na.rm = TRUE) %>%
     ungroup() %>% 
     mutate(fy2019achv = fy2019cumulative / fy2019_targets,
-           fy2018q1 = NA)
+           fy2018q1 = NA) %>% 
+    add_column(indicator = "TX_NET_NEW", .after = "primepartner") %>% 
+    bind_rows(df_adj_tx, .)
   
-  write_csv(df_adj_nn, "../Downloads/TZA_Q4_TX_NET_NEW_Adj.csv", na = "") 
+  write_csv(df_adj_nn, "../Downloads/TZA_Q4_TX_Adj.csv", na = "") 
   
   
   
@@ -110,6 +112,13 @@
     group_by(fundingagency, primepartner, indicator, period) %>% 
     summarise_at(vars(val), sum, na.rm = TRUE) %>% 
     ungroup() %>% 
-    spread(period, val) 
+    spread(period, val) %>% 
+    select(-fy2019cumulative, everything()) %>% 
+    select(-fy2019_targets, everything()) %>%
+    mutate(fy2019achv = fy2019cumulative / fy2019_targets) %>% 
+    arrange(indicator)
   
   write_csv(df_unadj, "../Downloads/TZA_Q4_TX_unAdj.csv", na = "") 
+
+  
+  
