@@ -2,6 +2,7 @@
 ## AUTHOR:   A.CHAFETZ | USAID
 ## PURPOSE:  MWI trends in Linakge
 ## DATE:     2019-11-20
+## UPDATED:  2019-11-27
 
 #dependencies
 library(tidyverse)
@@ -10,14 +11,14 @@ library(scales)
 library(extrafont)
 
 #import
-path <- "C:/Users/achafetz/Documents/ICPI/Data/MER_Structured_Datasets_OU_IM_FY17-19_20190920_v2_1.rds"
+path <- list.files("~/ICPI/Data", "OU_IM", full.names = TRUE)
 
-df <- read_rds(path)
+df_mer <- read_rds(path)
 
-df_link <- df %>% 
+df_link <- df_mer %>% 
   filter(operatingunit == "Malawi",
          fundingagency == "USAID",
-         primepartner != "FHI 360",
+         mech_name != "LINKAGES",
          indicator %in% c("HTS_TST_POS", "TX_NEW"),
          standardizeddisaggregate == "Total Numerator") %>%
   mutate(mech_name = case_when(mech_name == "Baylor TSP" ~ "Baylor",
@@ -37,8 +38,8 @@ df_link <- df %>%
   mutate(indicator = factor(indicator, c("HTS_TST_POS", "TX_NEW", "Proxy Linkage")),
          max = case_when(indicator == "Proxy Linkage" ~ val * 1.2,
                          TRUE ~ max(val) * 1.1),
-         lab = case_when(indicator == "Proxy Linkage" & str_detect(period, "Q(1|3)") ~ percent(val,2),
-                         str_detect(period, "Q(1|3)") ~ comma(val)),
+         lab = case_when(indicator == "Proxy Linkage" & str_detect(period, "Q(2|4)") ~ percent(val,2),
+                         str_detect(period, "Q(2|4)") ~ comma(val)),
          mech_name = factor(mech_name, c("EQUIP/PIH", "Baylor")))
 
 df_link %>% 
@@ -53,17 +54,18 @@ df_link %>%
   scale_y_continuous(labels = comma) +
   scale_x_discrete(labels = c("", "FY17Q3", "",
                               "FY18Q1", "", "FY18Q3", "",
-                              "FY19Q1", "", "FY19Q3")) +
+                              "FY19Q1", "", "FY19Q3", "")) +
   scale_color_manual(values = c("#335B8E", "#739bcc")) + #"#26456a",
   labs(x = NULL, y = NULL, caption = "Note: Disaggregate = Total Numerator,
-       Source: FY19Q3c MSD") +
+       Source: FY19Q4i MSD") +
   facet_grid(indicator ~ mech_name, scales = "free_y",switch = "y") +
   theme_minimal() +
   theme(text = element_text(family = "Gill Sans MT"),
         axis.text.y = element_blank(),
         legend.position = "none",
         plot.caption = element_text(color = "gray30"),
-        strip.text = element_text(size = 12))
+        strip.text = element_text(size = 12, face = "bold"),
+        strip.background.x = element_rect(fill = "gray90", color = "gray90"))
 
-ggsave("../Downloads/MWI_Linkage.png", dpi = 300,
-       height = 5.6, width = 8, units = "in")
+ggsave("C:/Users/achafetz/Downloads/MWI_Linkage.png", dpi = 300,
+       height = 5.6, width = 10, units = "in")
