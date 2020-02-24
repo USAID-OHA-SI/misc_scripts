@@ -4,11 +4,15 @@
 ##  At the request of Julia Bem and Meaghan Douglass, and approved by r lucas on 2/6/2019,
 ##  create-site level datasets for SCM division to pass to contractor for supply chain,
 ##  triangulation
+##  UPDATE 
 
 ##  site level MSD to be subset to indicators of interest (see below) and with 
 ##  mechanismuid, implementingmechanismname, mechanismid, and primepartner removed
 ##  OUs: Mozambique, Lesotho, Uganda, Tanzani, Namibia, Malawi, Botswana, Haiti
-##  Angola, Zambia, Zimbabwe, Cote d'Ivoire, Cameroon
+##  Angola, Zambia, Zimbabwe, Cote d'Ivoire, Cameroon, Nigeria, Cameroon, DRC, Botswana, Burundi
+
+install.packages("devtools")
+devtools::install_github("ICPI/ICPIutilities")
 
 
 #----------------------------------------------------------------------------------------
@@ -19,61 +23,83 @@ library(readxl)
 library(ICPIutilities)
 
 ##  indicators to keep
-indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW")
+indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
 
 ##  site level data goes here
-input <- "C:/Users/GHFP/Documents/data/12_21_release/site_level"
+input <- "C:/Users/Josh/Documents/data/fy19_q4_v2/site_level"
+
 
 ## where you want the output
-output <- "C:/Users/GHFP/Documents/data/12_21_release/scm_output"
+output <- "C:/Users/Josh/Documents/data/fy19_q4_v2/scm_output"
+
+## list of OUs per Nagesh on 3/25 and approved by SCM
+OUs <- c("Angola",
+  "Botswana",
+  "Burundi",
+  "Cameroon",
+  "Cote d'Ivoire",
+  "Democratic Republic of the Congo",
+  "Ghana",
+  "Haiti",
+  "Lesotho",
+  "Malawi",
+  "Mozambique",
+  "Namibia",
+  "Nigeria",
+  "South Sudan",
+  "Tanzania",
+  "Uganda",
+  "Zambia",
+  "Zimbabwe")
+
 
 #-----------------------------------------------------------------------------------------
 ##  create rds files from site level
 
 ## create obj that is list of files
-makey_rds <- dir(input, pattern = "*.txt", full.names = TRUE)
-
-##  create function
-site.msd <- function(file) {
-  read_msd(file, remove_txt = TRUE)
-}
-
-map( .x = makey_rds, .f = ~site.msd(.x))
+  makey_rds <- dir(input, pattern = "*.zip", full.names = TRUE)
+  
+  ##  create function
+  site.msd <- function(file) {
+    ICPIutilities::read_msd(file, remove_txt = TRUE)
+  }
+  
+  purrr::map( .x = makey_rds, .f = ~site.msd(.x))
 
 #-----------------------------------------------------------------------------------------
 ##  create master scm dataset
-
-setwd("C:/Users/GHFP/Documents/data/12_21_release/site_level")
 
 rdss <- dir(input, pattern = "*rds", full.names = TRUE)
 
 ##  create function to subset
 
+##
 get_scm <- function(input) {
   
-  df_mer <- read_rds(input) %>% 
-    filter((indicator %in% c("TX_NEW", "TX_CURR") &
-              numeratordenom == "N" & agecoarse %in% c("<15", "15+")) |
-             (indicator %in% c("TX_NEW", "TX_CURR","HTS_TST", "HTS_TST_POS", "HTS_TST_NEG") & 
-                standardizeddisaggregate == "Total Numerator")) %>% 
-    select(-c("mechanismuid", "implementingmechanismname", "mechanismid", "primepartner")) 
+  df_mer <- readr::read_rds(input) %>% 
+    dplyr::filter((indicator %in% indc &
+              numeratordenom == "N" & trendscoarse %in% c("<15", "15+")) |
+             (indicator %in% indc & 
+                standardizeddisaggregate == "Total Numerator"))  
 }
 
-  big_df <- map_dfr(.x = rdss, .f = ~get_scm(.x))
+##
+
+  big_df <- purrr::map_dfr(.x = rdss, .f = ~get_scm(.x))
   
-  write_csv(big_df, file.path(output, "mer_q4_site_scm.csv"))
+  #write_csv(big_df, file.path(input, "all_sites_q2.csv"))
+
+  
+  readr::write_csv(big_df, file.path(output, "mer_fy19q4_v2_site_scm.csv"))
 
 #-------------------------------------------------------------------------------------------
 ##  check vals
   
-  big_df %>% distinct(standardizeddisaggregate) %>% arrange(standardizeddisaggregate) %>% print(n=Inf)
-  big_df %>% distinct(operatingunit) %>% arrange(operatingunit) %>% print(n=Inf)
-  big_df %>% distinct(indicator) %>% arrange(indicator) %>% print(n=Inf)
-  
-  
-  
-  
-  
+  big_df %>% dplyr::distinct(standardizeddisaggregate) %>% dplyr::arrange(standardizeddisaggregate) %>% print(n=Inf)
+  big_df %>% dplyr::distinct(operatingunit) %>% dplyr::arrange(operatingunit) %>% print(n=Inf)
+  big_df %>% dplyr::distinct(indicator) %>% dplyr::arrange(indicator) %>% print(n=Inf)
+
+
   
   
   
