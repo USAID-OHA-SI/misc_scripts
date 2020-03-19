@@ -1,5 +1,6 @@
 #----------------------------------------------------------------------------------------
 ##  2.7.19 - j davis
+##  Updated: 2.24.19
 ##  Create site-level datasets for SCM division
 ##  At the request of Julia Bem and Meaghan Douglass, and approved by r lucas on 2/6/2019,
 ##  create-site level datasets for SCM division to pass to contractor for supply chain,
@@ -26,11 +27,11 @@ library(ICPIutilities)
 indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
 
 ##  site level data goes here
-input <- "C:/Users/Josh/Documents/data/fy19_q4_v2/site_level"
+input <- "C:/Users/Josh/Documents/data/fy20_q1_v1/site_level"
 
 
 ## where you want the output
-output <- "C:/Users/Josh/Documents/data/fy19_q4_v2/scm_output"
+output <- "C:/Users/Josh/Documents/data/fy20_q1_v1/scm_output"
 
 ## list of OUs per Nagesh on 3/25 and approved by SCM
 OUs <- c("Angola",
@@ -90,7 +91,7 @@ get_scm <- function(input) {
   #write_csv(big_df, file.path(input, "all_sites_q2.csv"))
 
   
-  readr::write_csv(big_df, file.path(output, "mer_fy19q4_v2_site_scm.csv"))
+  readr::write_csv(big_df, file.path(output, "mer_fy20_q1_v1_site_scm.csv"))
 
 #-------------------------------------------------------------------------------------------
 ##  check vals
