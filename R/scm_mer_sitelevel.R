@@ -15,19 +15,19 @@
 install.packages("devtools")
 devtools::install_github("ICPI/ICPIutilities")
 
-
 #----------------------------------------------------------------------------------------
 ##  dependancies
 
 library(tidyverse)
 library(readxl)
 library(ICPIutilities)
+library(vroom)
 
 ##  indicators to keep
 indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
 
 ##  site level data goes here
-input <- "C:/Users/Josh/Documents/data/fy20_q1_v1/site_level"
+input <- "C:/Users/Josh/Documents/data/fy20_q1_v1/scm_sitelvl"
 
 
 ## where you want the output
@@ -78,7 +78,8 @@ rdss <- dir(input, pattern = "*rds", full.names = TRUE)
 get_scm <- function(input) {
   
   df_mer <- readr::read_rds(input) %>% 
-    dplyr::filter((indicator %in% indc &
+    dplyr::filter(fiscal_year == 2020,
+                  (indicator %in% indc &
               numeratordenom == "N" & trendscoarse %in% c("<15", "15+")) |
              (indicator %in% indc & 
                 standardizeddisaggregate == "Total Numerator"))  
