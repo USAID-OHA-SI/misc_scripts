@@ -28,10 +28,10 @@ library(vroom)
 indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
 
 ##  site level data goes here
-input <- "C:/Users/mhartig/Documents/SC_FACT/MER data for PSM/Site Level FY20Q2_1"
+input <- "msd_here"
 
 ## where you want the output
-output <- "C:/Users/mhartig/Documents/SC_FACT/MER data for PSM/combined_files"
+output <- "where you want files to go"
 
 ## list of OUs per Nagesh on 3/25 and approved by SCM
 OUs <- c("Angola",
