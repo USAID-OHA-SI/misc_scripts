@@ -6,7 +6,7 @@
 ##  At the request of Julia Bem and Meaghan Douglass, and approved by r lucas on 2/6/2019,
 ##  create-site level datasets for SCM division to pass to contractor for supply chain,
 ##  triangulation
-##  UPDATE 
+##  UPDATE 7.10.20 - update to collapse obs to exclude mech, IP, and agency
 
 ##  site level MSD to be subset to indicators of interest (see below) and with 
 ##  mechanismuid, implementingmechanismname, mechanismid, and primepartner removed
@@ -23,6 +23,7 @@ library(tidyverse)
 library(readxl)
 library(ICPIutilities)
 library(vroom)
+library(glamr)
 
 ##  indicators to keep
 indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
@@ -53,7 +54,6 @@ OUs <- c("Angola",
          "Zambia",
          "Zimbabwe")
 
-
 #-----------------------------------------------------------------------------------------
 ##  create rds files from site level
 
@@ -66,9 +66,6 @@ site.msd <- function(file) {
 }
 
 purrr::map( .x = makey_rds, .f = ~site.msd(.x))
-
-test <- df%>%
-  filter(!is.na(qtr2))
 
 #-----------------------------------------------------------------------------------------
 ##  create master scm dataset
@@ -86,16 +83,16 @@ get_scm <- function(input) {
                   (indicator %in% indc &
                      numeratordenom == "N" & trendscoarse %in% c("<15", "15+")) |
                     (indicator %in% indc & 
-                       standardizeddisaggregate == "Total Numerator"))  
+                       standardizeddisaggregate == "Total Numerator")) %>% 
+    dplyr::group_by_at(vars(-primepartner, -fundingagency, -mech_code, -mech_name,
+                     -pre_rgnlztn_hq_mech_code, -prime_partner_duns, -award_number)) %>%
+    dplyr::summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+    dplry::ungroup()  
 }
 
 ##
 
 big_df <- purrr::map_dfr(.x = rdss, .f = ~get_scm(.x))
-
-
-#write_csv(big_df, file.path(input, "all_sites_q2.csv"))
-
 
 readr::write_csv(big_df, file.path(output, "mer_fy20_q1_q2_site_scm.csv"))
 
@@ -106,5 +103,6 @@ big_df %>% dplyr::distinct(standardizeddisaggregate) %>% dplyr::arrange(standard
 big_df %>% dplyr::distinct(operatingunit) %>% dplyr::arrange(operatingunit) %>% print(n=Inf)
 big_df %>% dplyr::distinct(indicator) %>% dplyr::arrange(indicator) %>% print(n=Inf)
 
+  
 
 
