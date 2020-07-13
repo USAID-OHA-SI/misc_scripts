@@ -31,7 +31,7 @@ indc <- c("SC_CURR", "SC_ARVDISP")
 input <- "C:/Users/mhartig/Documents/SC_FACT/MER data for PSM/Site Level FY20Q2_1"
 
 ## where you want the output
-output <- "where you want files to go"
+output <- "C:/Users/mhartig/Documents/SC_FACT/MER data for PSM/combined_files"
 
 ## list of OUs per Nagesh on 3/25 and approved by SCM
 OUs <- c("Angola",
@@ -67,8 +67,6 @@ site.msd <- function(file) {
 
 purrr::map( .x = makey_rds, .f = ~site.msd(.x))
 
-test <- df%>%
-  filter(!is.na(qtr2))
 
 #-----------------------------------------------------------------------------------------
 ##  create master scm dataset
@@ -95,7 +93,7 @@ big_df <- purrr::map_dfr(.x = rdss, .f = ~get_scm(.x))
 #write_csv(big_df, file.path(input, "all_sites_q2.csv"))
 
 
-readr::write_csv(big_df, file.path(output, "mer_fy20_q1_q2_site_scm.csv"))
+readr::write_csv(big_df, file.path(output, "mer_fy20q2_chemonics_SCindicators.csv"))
 
 #-------------------------------------------------------------------------------------------
 ##  check vals
