@@ -84,7 +84,7 @@ get_scm <- function(input) {
     dplyr::filter(fiscal_year == 2020,
                   countryname %in% c(OUs),
                   indicator %in% indc,
-                   mech_name == "GHSC-PSM")  
+                   primepartner == "Chemonics International, Inc.")  
 }
 
 ##
