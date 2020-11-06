@@ -27,13 +27,13 @@ library(vroom)
 library(glamr)
 
 ##  indicators to keep
-indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_CURR", "TX_NEW", "TX_PVLS")
+indc <- c("HTS_TST", "HTS_TST_POS", "HTS_TST_NEG", "TX_NEW", "TX_PVLS")
 
 ##  site level data goes here
 input <- "C:/Users/Josh/Documents/data/fy20_q3_v1/psm/mer_psm"
 
 ## where you want the output
-output <- "C:/Users/Josh/Documents/data/fy20_q3_v1/psm/mer_psm/out"
+output <- "C:/Users/Josh/Documents/data/fy20_q3_v1/psm/out"
 
 ## list of OUs per Nagesh on 3/25 and approved by SCM
 OUs <- c("Angola",
@@ -55,18 +55,6 @@ OUs <- c("Angola",
          "Zambia",
          "Zimbabwe")
 
-#-----------------------------------------------------------------------------------------
-##  create rds files from site level
-
-## create obj that is list of files
-makey_rds <- dir(input, pattern = "*.txt", full.names = TRUE)
-
-##  create function
-site.msd <- function(file) {
-  ICPIutilities::read_msd(file, save_rds=TRUE)
-}
-
-purrr::map( .x = makey_rds, .f = ~site.msd(.x))
 
 #-----------------------------------------------------------------------------------------
 ##  create master scm dataset
@@ -78,29 +66,33 @@ files <- dir(input, pattern = "*txt", full.names = TRUE)
 ##
 get_scm <- function(input) {
   
-  df_mer <- ICPIutilities::(input) %>% 
-    dplyr::filter(fiscal_year == 2020,
+  df_mer <- ICPIutilities::read_msd(input) %>% 
+    ICPIutilities::reshape_msd("long") %>% 
+    dplyr::filter(period == 'fy2020q3',
                   countryname %in% c(OUs),
-                  (indicator %in% indc &
-                     numeratordenom == "N" & trendscoarse %in% c("<15", "15+")) |
-                    (indicator %in% indc & 
-                       standardizeddisaggregate == "Total Numerator")) %>% 
+                  indicator == "TX_CURR" &
+                    is.na(trendscoarse) | trendscoarse == "15+" &
+                    standardizeddisaggregate %in%
+                    c("Age/Sex/HIVStatus", "Total Numerator", "Age/Sex/HIVStatus")|
+                    indicator %in% indc & standardizeddisaggregate == "Total Numerator") %>% 
     dplyr::group_by_at(vars(-primepartner, -fundingagency, -mech_code, -mech_name,
                      -pre_rgnlztn_hq_mech_code, -prime_partner_duns, -award_number)) %>%
     dplyr::summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
-    dplry::ungroup()  
+    dplyr::ungroup()  
 }
 
 ##
 
-big_df <- purrr::map_dfr(.x = rdss, .f = ~get_scm(.x))
+big_df <- purrr::map_dfr(.x = files, .f = ~get_scm(.x))
 
-readr::write_csv(big_df, file.path(output, "mer_fy20_q1_q2_site_scm.csv"))
+readr::write_csv(big_df, file.path(output, "mer_fy20_q3_site_psm.csv"))
 
 #-------------------------------------------------------------------------------------------
 ##  check vals
 
 big_df %>% dplyr::distinct(standardizeddisaggregate) %>% dplyr::arrange(standardizeddisaggregate) %>% print(n=Inf)
+big_df %>% dplyr::distinct(indicator, standardizeddisaggregate) %>% dplyr::arrange(standardizeddisaggregate) %>% print(n=Inf)
+
 big_df %>% dplyr::distinct(operatingunit) %>% dplyr::arrange(operatingunit) %>% print(n=Inf)
 big_df %>% dplyr::distinct(indicator) %>% dplyr::arrange(indicator) %>% print(n=Inf)
 
@@ -109,7 +101,7 @@ big_df %>% dplyr::distinct(indicator) %>% dplyr::arrange(indicator) %>% print(n=
 input <- "C:/Users/Josh/Documents/data/fy20_q3_v1/psm/mer_psm/Genie_SITE_IM_Angola_Frozen_97fcc5e8-68a0-4d41-9d3a-f6a4c022b5c4.txt"
 
 
-df_mer <- ICPIutilities::read_msd(input) %>%
+df_mer_old <- ICPIutilities::read_msd(input) %>%
   ICPIutilities::reshape_msd("long") %>% 
   dplyr::filter(period == 'fy2020q3',
                 countryname %in% c(OUs),
@@ -121,18 +113,33 @@ df_mer <- ICPIutilities::read_msd(input) %>%
                           -pre_rgnlztn_hq_mech_code, -prime_partner_duns, -award_number,
                           -ageasentered, -trendsfine, -trendssemifine, -sex, -categoryoptioncomboname)) %>%
   dplyr::summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
-  dplyr::ungroup() %>% 
-  spread(period, val)
-
+  dplyr::ungroup() 
 
 df_mer <- ICPIutilities::read_msd(input) %>%
   ICPIutilities::reshape_msd("long") %>% 
   dplyr::filter(period == 'fy2020q3',
                 countryname %in% c(OUs),
-                (indicator %in% indc &
-                   numeratordenom == "N" & trendscoarse %in% c("<15", "15+")) |
-                  (indicator %in% indc & 
-                     standardizeddisaggregate == "Total Numerator")) %>% 
+                indicator == "TX_CURR" &
+                           is.na(trendscoarse) | trendscoarse == "15+" &
+                           standardizeddisaggregate %in%
+                           c("Age/Sex/HIVStatus", "Total Numerator", "Age/Sex/HIVStatus")|
+                           indicator %in% indc & standardizeddisaggregate == "Total Numerator") %>% 
+  dplyr::group_by_at(vars(orgunituid, sitename, operatingunit, countryname, snu1, psnu, facility, sitetype,
+                          indicator, standardizeddisaggregate, trendscoarse, period)) %>%
+  dplyr::summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  spread(period, val)
+
+##trying to get rid of keypops
+df_mer <- ICPIutilities::read_msd(input) %>%
+  ICPIutilities::reshape_msd("long") %>% 
+  dplyr::filter(period == 'fy2020q3',
+                countryname %in% c(OUs),
+                indicator == "TX_CURR" &
+                  is.na(trendscoarse) | trendscoarse == "15+" &
+                  standardizeddisaggregate %in%
+                  c("Age/Sex/HIVStatus", "Total Numerator", "Age/Sex/HIVStatus")|
+                  indicator %in% indc & standardizeddisaggregate == "Total Numerator") %>% 
   dplyr::group_by_at(vars(orgunituid, sitename, operatingunit, countryname, snu1, psnu, facility, sitetype,
                           indicator, standardizeddisaggregate, trendscoarse, period)) %>%
   dplyr::summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
@@ -140,6 +147,8 @@ df_mer <- ICPIutilities::read_msd(input) %>%
   spread(period, val)
 
 
-  
+df_mer %>% dplyr::distinct(standardizeddisaggregate) %>% dplyr::arrange(standardizeddisaggregate) %>% print(n=Inf)
+df_mer %>% dplyr::distinct(indicator, standardizeddisaggregate) %>% dplyr::arrange(standardizeddisaggregate) %>% print(n=Inf)
+
 
 
